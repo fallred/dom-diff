@@ -1,5 +1,6 @@
 import { createElement, render, renderDom } from './element';
 import diff from './diff';
+import patch from './patch';
 let vertualDom1 = createElement('ul', {class: 'list', style: {display: 'none', backgroundImage: ''}}, [
     createElement('li', {class: 'item'}, ['a']),
     createElement('li', {class: 'item'}, ['b']),
@@ -9,9 +10,17 @@ let vertualDom1 = createElement('ul', {class: 'list', style: {display: 'none', b
 let vertualDom2 = createElement('ul', {class: 'list-group', style: {display: 'none', backgroundImage: ''}}, [
     createElement('li', {class: 'item'}, ['1']),
     createElement('li', {class: 'item'}, ['b']),
-    createElement('li', {class: 'item'}, ['3']),
+    createElement('div', {class: 'item'}, ['3']),
 ]);
+// let patches = diff(vertualDom1, vertualDom2);
+
+let el = render(vertualDom1);
+renderDom(el, window.root);
 let patches = diff(vertualDom1, vertualDom2);
+
+// 给元素打补丁，重新更新视图
+patch(el, patches);
+
 // console.log(vertualDom);
 // 将虚拟dom转化成了真实dom渲染到页面上
 // let el = render(vertualDom);

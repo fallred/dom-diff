@@ -1,3 +1,8 @@
+const ATTRS = 'ATTRS';
+const TEXT = 'TEXT';
+const REMOVE = 'REMOVE';
+const REPLACE = 'REPLACE';
+let Index = 0;
 function diff (oldTree, newTree){
     let patches = {};
     let index = 0;
@@ -23,13 +28,13 @@ function diffAttr(oldAttrs, newAttrs) {
     return patch;
 }
 
-const ATTRS = 'ATTRS';
-const TEXT = 'TEXT';
+
 function diffChildren(oldChildren, newChildren, index, patches){
     // 比较老的第一个和新的第一个
     oldChildren.forEach((child,idx)=> {
         // 索引不应是index了 ------------
-        walk(child, newChildren[idx], ++index, patches);
+        // index每次传递给walk时，index是递增的, 所有的节点都基于一个序号来实现
+        walk(child, newChildren[idx], ++Index, patches);
     });
 }
 function isString(node) {
@@ -37,7 +42,12 @@ function isString(node) {
 }
 function walk(oldNode, newNode, index, patches) {
     let currentPatch = [];
-    if (isString(oldNode) && isString(newNode)) {
+    if (!newNode) {
+        currentPatch.push({
+            type: REMOVE,
+            index
+        });
+    } else if (isString(oldNode) && isString(newNode)) {
         if (oldNode !== newNode) {
             currentPatch.push({
                 type: TEXT,
@@ -52,6 +62,8 @@ function walk(oldNode, newNode, index, patches) {
         }
         // 如果有儿子节点，遍历儿子
         diffChildren(oldNode.children, newNode.children, index, patches);
+    } else {
+        currentPatch.push({type:REPLACE, newNode});
     }
     
     if (currentPatch.length > 0) {
